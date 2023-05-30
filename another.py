@@ -112,29 +112,24 @@ class PlanetSys:
         self.planets[8].yv = -5400
 
 
-        self.planets.append(Planet(-5.2 * self.AU, 0, 4, 1898e24, 'L3', (102, 101, 0), False))
+        self.planets.append(Planet(-5.2 * self.AU, 0, 4, 1898e24, 'L3', (102, 102, 0), False))
         self.planets[9].yv = 13100
         
-        # self.planets.append(Planet((5.2 - 0.363) * self.AU,  0, 4, 1e25, 'L1', (255, 255, 0), False))
-        # self.planets[10].yv = -13000 
-
-        # mass_sun = 1.9891e30
-        # mass_jupiter = 1898e24
-        # R = 5.2
-        # T = R**1.5
-
-        # rs = R * mass_jupiter / (mass_jupiter + mass_sun)
-        # rp = R * mass_sun / (mass_jupiter + mass_sun)
-        # w = 40000# (2 * math.pi / T) * 60 * 60 * 365 / 1000
-
-        # lx = rp-R/2
-        # ly= math.sqrt(3)*R/2
-
-        # self.planets.append(Planet(lx * self.AU, -ly * self.AU, 4, 1e25, 'L4', (255, 255, 0), False))
-        # self.planets[12].yv = -13100
-
-        # self.planets.append(Planet(lx * self.AU, ly * self.AU, 4, 1e25, 'L5', (255, 255, 0), False))
-        # self.planets[13].yv = -13100
+        self.planets.append(Planet((5.2 - 0.363) * self.AU,  0, 4, 1e25, 'L1', (255, 255, 0), False))
+        self.planets[10].yv = -13000   
+        mass_sun = 1.9891e30
+        mass_jupiter = 1898e24
+        R = 5.2
+        T = R**1.  
+        rs = R * mass_jupiter / (mass_jupiter + mass_sun)
+        rp = R * mass_sun / (mass_jupiter + mass_sun)
+        w = 40000# (2 * math.pi / T) * 60 * 60 * 365 / 100 
+        lx = rp-R/2
+        ly= math.sqrt(3)*R / 2 
+        self.planets.append(Planet(lx * self.AU, -ly * self.AU, 4, 1e25, 'L4', (102, 102, 0), False))
+        self.planets[11].yv = -13100  
+        self.planets.append(Planet(5.2 * self.AU / 2, 5.2 * self.AU * math.sqrt(3) / 2, 4, 1e25, 'L5', (102, 102, 0), False))
+        self.planets[12].yv = -13100
 
         
         
@@ -190,14 +185,22 @@ class PlanetSys:
                 if iter_lagrange.name == 'L4': 
                     iter_lagrange.xv = pl.xv
                     iter_lagrange.yv = pl.yv
-                    iter_lagrange.r_x += pl.r_x
-                    iter_lagrange.r_y = math.sqrt(3) * pl.r_y / 2
+                    iter_lagrange.r_x = -(math.pi * 1 / 2 - pl.r_y)
+                    iter_lagrange.r_y = math.pi * 1 / 2  - pl.r_x
+                
 
-                elif iter_lagrange.name == 'L5': 
+                if iter_lagrange.name == 'L5': 
                     iter_lagrange.xv = pl.xv
                     iter_lagrange.yv = pl.yv
-                    iter_lagrange.r_x += pl.r_x
-                    iter_lagrange.r_y = -math.sqrt(3) * pl.r_y / 2
+                    iter_lagrange.r_x = -pl.r_y + math.pi * 1 / 2
+                    iter_lagrange.r_y = pl.r_x - math.pi * 1 / 2 
+            
+                # work L1
+                # elif iter_lagrange.name == 'L5': 
+                    # iter_lagrange.xv = pl.xv
+                    # iter_lagrange.yv = pl.yv
+                    # iter_lagrange.r_x = (math.sqrt(3) / 2) * pl.r_x
+                    # iter_lagrange.r_y = (math.sqrt(3) / 2) * pl.r_y
                 
                 iter_lagrange.orbit.append((iter_lagrange.r_x, iter_lagrange.r_y))
 
