@@ -21,7 +21,6 @@ class Planet:
 
         self.orbit = list()
         self.sun_status = sun_status 
-        self.distance_sun = 0
 
         self.xv = 0
         self.yv = 0
@@ -38,12 +37,20 @@ class Planet:
         dist_y = self.distance(sec_planet.r_y, self.r_y)
 
         distance_planets = self.sq_r(dist_x, dist_y)
+        
 
-        if sec_planet.sun_status == True:
-            self.distance_sun = distance_planets
 
         f = G * self.m * sec_planet.m / distance_planets ** 2 
-       
+
+        if self.name == 'Object' and (sec_planet.name == 'L3' or sec_planet.name == 'L4' or sec_planet.name == 'L5'):
+
+            if distance_planets < 108674517125.17256: 
+                if sec_planet.name == 'L4' or sec_planet.name == 'L5':
+                    f *= 1e5
+                else: 
+                    f *= 1e2
+
+
         theta = math.atan2(dist_y, dist_x)
             
 
@@ -115,8 +122,8 @@ class PlanetSys:
         self.planets.append(Planet(-5.2 * self.AU, 0, 4, 1898e24, 'L3', (102, 102, 0), False))
         self.planets[9].yv = 13100
         
-        self.planets.append(Planet((5.2 - 0.363) * self.AU,  0, 4, 1e25, 'L1', (255, 255, 0), False))
-        self.planets[10].yv = -13000   
+        # self.planets.append(Planet((5.2 - 0.363) * self.AU,  0, 4, 1e25, 'L1', (255, 255, 0), False))
+        # self.planets[10].yv = -13000   
         mass_sun = 1.9891e30
         mass_jupiter = 1898e24
         R = 5.2
@@ -126,39 +133,17 @@ class PlanetSys:
         w = 40000# (2 * math.pi / T) * 60 * 60 * 365 / 100 
         lx = rp-R/2
         ly= math.sqrt(3)*R / 2 
-        self.planets.append(Planet(lx * self.AU, -ly * self.AU, 4, 1e25, 'L4', (102, 102, 0), False))
-        self.planets[11].yv = -13100  
-        self.planets.append(Planet(5.2 * self.AU / 2, 5.2 * self.AU * math.sqrt(3) / 2, 4, 1e25, 'L5', (102, 102, 0), False))
-        self.planets[12].yv = -13100
 
-        
-        
-        # self.lagrange_points.append(Planet(-5.2 * self.AU, 0, 4, 1898e24, 'L3', (255, 255, 0), False))
-        # self.lagrange_points[0].yv = 13100
-# 
-        # self.lagrange_points.append(Planet(lx * self.AU, -ly * self.AU, 4, 1e25, 'L4', (255, 255, 0), False))
-        # self.lagrange_points[1].yv = -13100
-# 
-        # self.lagrange_points.append(Planet(lx * self.AU, ly * self.AU, 4, 1e25, 'L5', (255, 255, 0), False))
-        # self.lagrange_points[2].yv = 13000
-        # for iter in self.lagrange_points:
-            # print(iter.yv)
-#       
-        # self.planets.append(Planet(1.48104e11, 0, 9, 1898e24, 'L1', (255, 255, 0), False))
-        # self.planets[6].yv = -12100
-# 
-        # self.planets.append(Planet(1.510924e11, 0, 9, 1898e24, 'L2', (255, 255, 0), False))
-        # self.planets[7].yv = -14100
-# 
-        # self.planets.append(Planet(-5.2 * self.AU, 0, 9, 1898e24, 'L3', (255, 255, 0), False))
-        # self.planets[8].yv = 13100
-        # distance_to_sun = 5.2 * self.AU * (1.9891e30 * 0.001) / ((1.9891e30 * 0.001) + 1.9891e30)
-        # self.planets.append(Planet(distance_to_sun, distance_to_sun, 9, 1898e24, 'L4', (255, 255, 0), False))
-        # self.planets[9].yv = -2 * math.pi / (5.2 * self.AU)
-# 
-        # self.planets.append(Planet(distance_to_sun, -distance_to_sun, 9, 1898e24, 'L5', (255, 255, 0), False))
-        # self.planets[10].yv = -2 * math.pi / (5.2 * self.AU)
-        # 
+        self.planets.append(Planet(5.2 * self.AU / 2, -5.2 * self.AU  * math.sqrt(3)/ 2, 4, 1e24, 'L4', (102, 102, 0), False))
+        self.planets[10].yv = -13100 / 2
+        self.planets[10].xv = -13100 * math.sqrt(3)/ 2
+
+        self.planets.append(Planet(5.2 * self.AU / 2, 5.2 * self.AU * math.sqrt(3) / 2, 4, 1e24, 'L5', (102, 102, 0), False))
+        self.planets[11].yv = -13100 / 2
+        self.planets[11].xv = 13100 * math.sqrt(3)/ 2
+
+        self.planets.append(Planet(-1.5 * self.AU, -7 * self.AU, 5, 1e3, 'Object', (51, 153, 255), False))
+        self.planets[12].yv = 2000
 
 
     def update_positions(self, pl):
@@ -166,9 +151,12 @@ class PlanetSys:
         total_fy = 0
 
         for iter_pl in self.planets: 
-            if pl == iter_pl or iter_pl.name == 'L4' or iter_pl.name == 'L5':
+            if pl == iter_pl:
                 continue
 
+            if pl.name  == 'Jupiter' and (iter_pl.name == 'L4' or iter_pl.name == 'L5'):
+                continue
+                
             fx, fy = pl.f_axes(iter_pl, self.G)
 
             total_fx += fx
@@ -176,33 +164,33 @@ class PlanetSys:
 
         pl.xv += total_fx / pl.m * self.day_time
         pl.yv += total_fy / pl.m * self.day_time
-                
+        
         pl.r_x += pl.xv * self.day_time
         pl.r_y += pl.yv * self.day_time
 
-        if pl.name == 'Jupiter':
-            for iter_lagrange in self.planets:
-                if iter_lagrange.name == 'L4': 
-                    iter_lagrange.xv = pl.xv
-                    iter_lagrange.yv = pl.yv
-                    iter_lagrange.r_x = -(math.pi * 1 / 2 - pl.r_y)
-                    iter_lagrange.r_y = math.pi * 1 / 2  - pl.r_x
+        # if pl.name == 'Jupiter':
+        #     for iter_lagrange in self.planets:
+        #         if iter_lagrange.name == 'L4': 
+        #             iter_lagrange.xv = pl.xv
+        #             iter_lagrange.yv = pl.yv
+        #             iter_lagrange.r_x = (1/2 + 1) * pl.r_y #-(math.pi - pl.r_y)
+        #             iter_lagrange.r_y = -pl.r_x * (1 + math.sqrt(3) / 2) # (math.pi - pl.r_x)
                 
 
-                if iter_lagrange.name == 'L5': 
-                    iter_lagrange.xv = pl.xv
-                    iter_lagrange.yv = pl.yv
-                    iter_lagrange.r_x = -pl.r_y + math.pi * 1 / 2
-                    iter_lagrange.r_y = pl.r_x - math.pi * 1 / 2 
+        #         if iter_lagrange.name == 'L5': 
+        #             iter_lagrange.xv = pl.xv
+        #             iter_lagrange.yv = pl.yv
+        #             iter_lagrange.r_x = -pl.r_y + math.pi
+        #             iter_lagrange.r_y = pl.r_x - math.pi 
             
-                # work L1
-                # elif iter_lagrange.name == 'L5': 
-                    # iter_lagrange.xv = pl.xv
-                    # iter_lagrange.yv = pl.yv
-                    # iter_lagrange.r_x = (math.sqrt(3) / 2) * pl.r_x
-                    # iter_lagrange.r_y = (math.sqrt(3) / 2) * pl.r_y
+        #         # work L1
+        #         # elif iter_lagrange.name == 'L5': 
+        #             # iter_lagrange.xv = pl.xv
+        #             # iter_lagrange.yv = pl.yv
+        #             # iter_lagrange.r_x = (math.sqrt(3) / 2) * pl.r_x
+        #             # iter_lagrange.r_y = (math.sqrt(3) / 2) * pl.r_y
                 
-                iter_lagrange.orbit.append((iter_lagrange.r_x, iter_lagrange.r_y))
+        #         iter_lagrange.orbit.append((iter_lagrange.r_x, iter_lagrange.r_y))
 
         pl.orbit.append((pl.r_x, pl.r_y))
 
@@ -220,10 +208,10 @@ class PlanetSys:
                     self.status = False
 
             for iter_pl in self.planets: 
-                if iter_pl.name == 'L4' or iter_pl.name == 'L5':
-                    pass
-                else:
-                    self.update_positions(iter_pl)
+                # if iter_pl.name == 'L4' or iter_pl.name == 'L5':
+                    # pass
+                # else:
+                self.update_positions(iter_pl)
                 
                 iter_pl.draw(WIN)
                 #if iter_pl.name == 'Jupiter':
